@@ -10,8 +10,6 @@ name: Java CI with Gradle
 on:
   push:
     branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
 
 permissions:
   contents: read
@@ -22,13 +20,59 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-      with:
-        arguments: build
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      - name: Copy Real1
+        env:
+          OCCUPY_REAL1: ${{ secrets.OCCUPY_REAL1 }}
+          OCCUPY_REAL1_DIR: src/main/resources
+          OCCUPY_REAL1_DIR_FILE_NAME: application-real1.yml
+        run: echo $OCCUPY_REAL1 | base64 --decode > $OCCUPY_REAL1_DIR/$OCCUPY_REAL1_DIR_FILE_NAME
+      - name: Copy Real2
+        env:
+          OCCUPY_REAL2: ${{ secrets.OCCUPY_REAL2 }}
+          OCCUPY_REAL2_DIR: src/main/resources
+          OCCUPY_REAL2_DIR_FILE_NAME: application-real2.yml
+        run: echo $OCCUPY_REAL2 | base64 --decode > $OCCUPY_REAL2_DIR/$OCCUPY_REAL2_DIR_FILE_NAME
+
+      - name: Copy Secret
+        env:
+          OCCUPY_SECRET: ${{ secrets.OCCUPY_SECRET }}
+          OCCUPY_SECRET_DIR: src/main/resources
+          OCCUPY_SECRET_DIR_FILE_NAME: application-secret.yml
+        run: echo $OCCUPY_SECRET | base64 --decode > $OCCUPY_SECRET_DIR/$OCCUPY_SECRET_DIR_FILE_NAME
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: build
+
+      - name: Compile querydsl with Gradle
+        run: ./gradlew compilequerydsl
+
+      - name: Make zip file
+        run: zip -qq -r ./deboost-backend.zip .
+        shell: bash
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+#      - name: Upload to S3
+#        run: aws s3 cp --region ap-northeast-2 ./deboost-backend.zip s3://deboost-backend/build/deboost-backend.zip
+#
+#      - name: Code Deploy
+#        run: aws deploy create-deployment --application-name deboost-back
+#          --deployment-config-name CodeDeployDefault.OneAtATime
+#          --deployment-group-name deboost-back-group
+#          --s3-location bucket=deboost-backend,bundleType=zip,key=build/deboost-backend.zip
