@@ -68,8 +68,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-#      - name: Upload to S3
-#        run: aws s3 cp --region ap-northeast-2 ./deboost-backend.zip s3://deboost-backend/build/deboost-backend.zip
+      - name: Upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./deboost-backend.zip s3://deboost-backend/build/deboost-backend.zip
 #
 #      - name: Code Deploy
 #        run: aws deploy create-deployment --application-name deboost-back
