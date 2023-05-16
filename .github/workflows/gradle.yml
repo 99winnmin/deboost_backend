@@ -71,8 +71,8 @@ jobs:
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ./deboost-backend.zip s3://deboost-backend/build/deboost-backend.zip
 #
-#      - name: Code Deploy
-#        run: aws deploy create-deployment --application-name deboost-back
-#          --deployment-config-name CodeDeployDefault.OneAtATime
-#          --deployment-group-name deboost-back-group
-#          --s3-location bucket=deboost-backend,bundleType=zip,key=build/deboost-backend.zip
+      - name: Code Deploy
+        run: aws deploy create-deployment --application-name deboost
+          --deployment-config-name CodeDeployDefault.OneAtATime
+          --deployment-group-name deboost-cd-group
+          --s3-location bucket=deboost-backend,bundleType=zip,key=build/deboost-backend.zip
