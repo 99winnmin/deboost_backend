@@ -1,5 +1,6 @@
 package com.samnamja.deboost.api.service.openfeign;
 
+import com.samnamja.deboost.api.dto.openfeign.response.GameAllDetailInfoResponseDto;
 import com.samnamja.deboost.api.dto.openfeign.response.GameIdResponseDto;
 import com.samnamja.deboost.config.openfeign.RiotOpenFeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -21,6 +22,6 @@ public interface AsiaRiotOpenFeignClient {
                                        @RequestParam("count") int count);
 
     @GetMapping(value = "/lol/match/v5/matches/{matchId}")
-    List<GameIdResponseDto> getGameDetailInfos(@PathVariable("matchId") String matchId,
-                                       @RequestHeader("X-Riot-Token") String riotToken);
+    GameAllDetailInfoResponseDto getGameDetailInfos(@PathVariable("matchId") String matchId,
+                                                    @RequestHeader("X-Riot-Token") String riotToken);
 }

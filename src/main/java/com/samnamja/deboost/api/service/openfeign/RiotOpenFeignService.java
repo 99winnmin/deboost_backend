@@ -1,5 +1,6 @@
 package com.samnamja.deboost.api.service.openfeign;
 
+import com.samnamja.deboost.api.dto.openfeign.response.GameAllDetailInfoResponseDto;
 import com.samnamja.deboost.api.dto.openfeign.response.GameIdResponseDto;
 import com.samnamja.deboost.api.dto.openfeign.response.SummonerDetailInfoResponseDto;
 import com.samnamja.deboost.api.dto.openfeign.response.SummonerInfoResponseDto;
@@ -26,5 +27,9 @@ public class RiotOpenFeignService{
 
     public List<GameIdResponseDto> getGameIds(String puuid, String riotToken) {
         return asiaRiotOpenFeignClient.getGameIds(puuid, riotToken, "ranked", 0, 10);
+    }
+
+    public GameAllDetailInfoResponseDto getGameDetailInfos(String matchId, String riotToken) {
+        return asiaRiotOpenFeignClient.getGameDetailInfos(matchId, riotToken);
     }
 }
