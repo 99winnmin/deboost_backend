@@ -11,7 +11,7 @@ public class SummonerInfoResponseDto {
     private String accountId;
     private String puuid;
     private String name;
-//    private int profileIconId;
+    private int profileIconId;
 //    private long revisionDate;
-    private long summonerLevel;
+    private int summonerLevel;
 }
