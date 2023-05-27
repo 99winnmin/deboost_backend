@@ -69,6 +69,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests() // http servletRequest 를 사용하는 요청들에 대한 접근제한을 설정
                 .antMatchers("/profile", "/login/getGoogleAuthUrl","/login/oauth_google_check").permitAll()
+                .antMatchers("/riot.txt").permitAll()
                 .anyRequest().authenticated()   // 나머지 API 는 전부 인증 필요
 
                 .and()
