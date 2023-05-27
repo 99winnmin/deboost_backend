@@ -1,4 +1,4 @@
-package com.samnamja.deboost.config;
+package com.samnamja.deboost.config.web;
 
 import com.samnamja.deboost.filter.jwt.JwtAuthenticationProvider;
 import lombok.RequiredArgsConstructor;

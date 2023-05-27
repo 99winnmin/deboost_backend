@@ -1,4 +1,4 @@
-package com.samnamja.deboost.utils;
+package com.samnamja.deboost.utils.aws;
 
 import org.springframework.util.StringUtils;
 

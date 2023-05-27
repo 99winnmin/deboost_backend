@@ -1,4 +1,4 @@
-package com.samnamja.deboost.utils;
+package com.samnamja.deboost.utils.aws;
 
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;

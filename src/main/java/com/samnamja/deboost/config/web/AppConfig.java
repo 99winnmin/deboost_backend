@@ -1,4 +1,4 @@
-package com.samnamja.deboost.config;
+package com.samnamja.deboost.config.web;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
