@@ -41,46 +41,6 @@ public class RiotDataService {
     private final UserHistoryRepository userHistoryRepository;
     private final AmazonS3Uploader amazonS3Uploader;
 
-//    public SummonerSearchResponseDto get10GameData(String summonerName) {
-//        AtomicReference<SummonerSearchResponseDto> summonerSearchResponseDto = null;
-//        userHistoryRepository.findByHistoryGamerName(summonerName)
-//                .ifPresentOrElse(userHistory -> {
-//                    // 2. userHistory 에 존재하면 -> analysis data에서 10개 찾아서 데이터 구성해서 보내기
-//                    List<GameInfoDto> gameInfoDtos = new ArrayList<>();
-//                    SummonerInfoResponseDto summonerInfo = riotOpenFeignService.getSummonerEncryptedId(summonerName, riotApiKey);
-//                    List<SummonerDetailInfoResponseDto> summonerDetailInfo = riotOpenFeignService.getSummonerDetailInfo(summonerInfo.getId(), riotApiKey);
-//                    analysisDataRepository.findTop10ByUserHistory_IdOrderByCreatedAt(userHistory.getId())
-//                            .stream().map(AnalysisData::getPrimaryDataUrl).collect(Collectors.toList())
-//                            .forEach(url -> {
-//                                GameAllDetailInfoResponseDto gameDetailInfos = amazonS3Uploader.loadJsonFileAndConvertToDto(url);
-//                                gameInfoDtos.add(GameInfoDto.from(gameDetailInfos, summonerName));
-//                            });
-//                    summonerSearchResponseDto.set(SummonerSearchResponseDto.builder()
-//                            .summonerInfo(SummonerSearchResponseDto.SummonerInfo.builder()
-//                                    .summonerName(summonerInfo.getName())
-//                                    .summonerLevel(summonerInfo.getSummonerLevel())
-//                                    .summonerIconId(summonerInfo.getProfileIconId())
-//                                    .tier(summonerDetailInfo.stream()
-//                                            .filter(detailInfo -> detailInfo.getQueueType().equals("RANKED_SOLO_5x5"))
-//                                            .findFirst().orElse(SummonerDetailInfoResponseDto.builder().tier("UNRANKED").build()).getTier()).build())
-//                            .isSearchedBefore(true)
-//                            .isUpdated(userHistory.getIsSearched())
-//                            .gameInfos(gameInfoDtos).build());
-//                }, () -> {
-//                    // 1. userHistory 에 존재하는지 검색 -> 없으면 널값 보내주기
-//                    summonerSearchResponseDto.set(SummonerSearchResponseDto.builder()
-//                            .summonerInfo(SummonerSearchResponseDto.SummonerInfo.builder()
-//                                    .summonerName(summonerName)
-//                                    .summonerLevel(0)
-//                                    .summonerIconId(0)
-//                                    .tier("")
-//                                    .build())
-//                            .isSearchedBefore(false)
-//                            .isUpdated(false)
-//                            .gameInfos(null).build());
-//                });
-//        return summonerSearchResponseDto.get();
-//    }
 
     public SummonerSearchResponseDto get10GameData(String summonerName) {
         return userHistoryRepository.findByHistoryGamerName(summonerName)
