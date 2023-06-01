@@ -20,7 +20,7 @@ public class BookMark {
     private Long id;
 
     @Column(name = "bookmark_gamer_name", nullable = false)
-    private String historyGamerName;
+    private String bookmarkGamerName;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -30,15 +30,15 @@ public class BookMark {
     private User user;
 
     @Builder
-    public BookMark(String historyGamerName, LocalDateTime createdAt, User user) {
-        this.historyGamerName = historyGamerName;
+    public BookMark(String bookmarkGamerName, LocalDateTime createdAt, User user) {
+        this.bookmarkGamerName = bookmarkGamerName;
         this.createdAt = createdAt;
         this.user = user;
     }
 
-    public static BookMark toEntity(String historyGamerName, User user) {
+    public static BookMark toEntity(String bookmarkGamerName, User user) {
         return BookMark.builder()
-                .historyGamerName(historyGamerName)
+                .bookmarkGamerName(bookmarkGamerName)
                 .createdAt(LocalDateTime.now())
                 .user(user)
                 .build();
