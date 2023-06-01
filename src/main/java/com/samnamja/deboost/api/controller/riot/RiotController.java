@@ -1,6 +1,7 @@
 package com.samnamja.deboost.api.controller.riot;
 
 import com.samnamja.deboost.api.dto.riot.request.SummonerSearchRequestDto;
+import com.samnamja.deboost.api.dto.riot.response.GameSpecificDetailInfoResponseDto;
 import com.samnamja.deboost.api.dto.riot.response.SummonerSearchResponseDto;
 import com.samnamja.deboost.api.entity.user.detail.UserAccount;
 import com.samnamja.deboost.api.service.riot.RiotDataService;
@@ -9,9 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -19,15 +18,43 @@ import org.springframework.web.bind.annotation.RestController;
 public class RiotController {
     private final RiotDataService riotDataService;
 
-    @PostMapping(value = "/riot/summoner")
-    public ResponseEntity<SummonerSearchResponseDto> analysisSummoner
+    // 1. GET 요청으로 검색 기록 있는지 확인 있으면 긁어서 줌 (상위 정보)
+    @GetMapping(value = "/riot/gameinfo")
+    public ResponseEntity<SummonerSearchResponseDto> getRecentGames
+    (
+            @Parameter(hidden = true) @AuthenticationPrincipal UserAccount userAccount,
+            @RequestParam String summonerName
+    )
+    {
+        SummonerSearchResponseDto summonerSearchResponseDto = riotDataService.get10GameData(summonerName);
+        return ResponseEntity.ok().body(summonerSearchResponseDto);
+    }
+
+    // 2. GET 요청으로 한 게임 DETAIL 정보 리턴
+    @GetMapping(value = "/riot/gameinfo/detail")
+    public ResponseEntity<?> getSpecificGameData
+            (
+                    @Parameter(hidden = true) @AuthenticationPrincipal UserAccount userAccount,
+                    @RequestParam String summonerName,
+                    @RequestParam String gameId
+            )
+    {
+        GameSpecificDetailInfoResponseDto detailGameData = riotDataService.getDetailGameData(gameId, summonerName);
+        return ResponseEntity.ok().body(detailGameData);
+    }
+
+    // 3. POST 요청으로 최근 10게임 검색 기록 갱신 및 저장
+    @PostMapping(value = "/riot/gameinfo")
+    public ResponseEntity<Void> updateSummonerRecentGames
             (
                     @Parameter(hidden = true) @AuthenticationPrincipal UserAccount userAccount,
                     @RequestBody SummonerSearchRequestDto summonerSearchRequestDto
             )
     {
-        SummonerSearchResponseDto summonerSearchResponseDto = riotDataService.analysisSummoner(summonerSearchRequestDto.getSummonerName());
-        return ResponseEntity.ok().body(summonerSearchResponseDto);
+        riotDataService.updateGameData(summonerSearchRequestDto.getSummonerName());
+        return ResponseEntity.ok().build();
     }
+
+    // 4. PUT 요청 종합 분석 로직 실행
 
 }
