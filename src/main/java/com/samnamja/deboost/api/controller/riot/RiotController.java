@@ -3,6 +3,7 @@ package com.samnamja.deboost.api.controller.riot;
 import com.samnamja.deboost.api.dto.riot.request.SummonerSearchRequestDto;
 import com.samnamja.deboost.api.dto.riot.response.GameSpecificDetailInfoResponseDto;
 import com.samnamja.deboost.api.dto.riot.response.SummonerSearchResponseDto;
+import com.samnamja.deboost.api.dto.riot.response.TotalAnalysisResponseDto;
 import com.samnamja.deboost.api.entity.user.detail.UserAccount;
 import com.samnamja.deboost.api.service.riot.RiotDataService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -56,5 +57,27 @@ public class RiotController {
     }
 
     // 4. PUT 요청 종합 분석 로직 실행
+    @PostMapping(value = "/riot/gameinfo/analysis")
+    public ResponseEntity<TotalAnalysisResponseDto> doTotalAnalysis
+    (
+            @Parameter(hidden = true) @AuthenticationPrincipal UserAccount userAccount,
+            @RequestParam String summonerName
+    )
+    {
+        riotDataService.analysisGameByFlask(summonerName);
+        return ResponseEntity.ok().build();
+    }
+
+    // 5. GET 요청으로 종합 분석 결과 리턴
+    @GetMapping(value = "/riot/gameinfo/analysis")
+    public ResponseEntity<TotalAnalysisResponseDto> getTotalAnalysis
+            (
+                    @Parameter(hidden = true) @AuthenticationPrincipal UserAccount userAccount,
+                    @RequestParam String summonerName
+            )
+    {
+        TotalAnalysisResponseDto totalAnalysisResponseDto = riotDataService.analysisGameData(summonerName);
+        return ResponseEntity.ok().body(totalAnalysisResponseDto);
+    }
 
 }
