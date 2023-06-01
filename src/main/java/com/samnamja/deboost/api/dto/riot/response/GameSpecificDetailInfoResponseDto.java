@@ -1,7 +1,6 @@
 package com.samnamja.deboost.api.dto.riot.response;
 
 import com.samnamja.deboost.api.dto.openfeign.response.GameAllDetailInfoResponseDto;
-import com.samnamja.deboost.api.service.riot.ManuFactureDataService;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -104,7 +103,7 @@ public class GameSpecificDetailInfoResponseDto {
     }
 
 
-    public static GameSpecificDetailInfoResponseDto from(GameAllDetailInfoResponseDto gameAllDetailInfoResponseDto, String desiredSummonerName) {
+    public static GameSpecificDetailInfoResponseDto from(GameAllDetailInfoResponseDto gameAllDetailInfoResponseDto, String desiredSummonerName, ManufactureResponseDto manufactureResponseDto) {
         Map<Boolean, List<GameAllDetailInfoResponseDto.InfoDTO.ParticipantDTO>> team1AndTeam2 = gameAllDetailInfoResponseDto.getInfo().getParticipants().stream()
                 .collect(Collectors.partitioningBy(GameAllDetailInfoResponseDto.InfoDTO.ParticipantDTO::isWin));
         return GameSpecificDetailInfoResponseDto.builder()
@@ -112,7 +111,7 @@ public class GameSpecificDetailInfoResponseDto {
                 .gameInfo(GameInfo.from(gameAllDetailInfoResponseDto.getInfo()))
                 .team1(team1AndTeam2.get(true).stream().map(SummonerData::from).collect(Collectors.toList()))
                 .team2(team1AndTeam2.get(false).stream().map(SummonerData::from).collect(Collectors.toList()))
-                .manufactureInfo(ManuFactureDataService.manufactureGameData(gameAllDetailInfoResponseDto, desiredSummonerName))
+                .manufactureInfo(manufactureResponseDto)
                 .build();
     }
 }
