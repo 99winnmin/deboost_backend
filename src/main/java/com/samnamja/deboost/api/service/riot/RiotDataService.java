@@ -2,13 +2,9 @@ package com.samnamja.deboost.api.service.riot;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.samnamja.deboost.api.dto.openfeign.response.GameAllDetailInfoResponseDto;
-import com.samnamja.deboost.api.dto.openfeign.response.GameIdResponseDto;
-import com.samnamja.deboost.api.dto.openfeign.response.SummonerDetailInfoResponseDto;
-import com.samnamja.deboost.api.dto.openfeign.response.SummonerInfoResponseDto;
-import com.samnamja.deboost.api.dto.riot.response.GameInfoDto;
-import com.samnamja.deboost.api.dto.riot.response.GameSpecificDetailInfoResponseDto;
-import com.samnamja.deboost.api.dto.riot.response.SummonerSearchResponseDto;
+import com.samnamja.deboost.api.dto.openfeign.request.FlaskRequestDto;
+import com.samnamja.deboost.api.dto.openfeign.response.*;
+import com.samnamja.deboost.api.dto.riot.response.*;
 import com.samnamja.deboost.api.entity.riot.AnalysisData.AnalysisData;
 import com.samnamja.deboost.api.entity.riot.AnalysisData.AnalysisDataRepository;
 import com.samnamja.deboost.api.entity.riot.UserHistory.UserHistory;
@@ -24,8 +20,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,8 +32,12 @@ import java.util.stream.Collectors;
 public class RiotDataService {
     @Value("${riot.api-key}")
     private String riotApiKey;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucketName;
     private final ObjectMapper objectMapper;
     private final RiotOpenFeignService riotOpenFeignService;
+    private final FlaskService flaskService;
     private final ManuFactureDataService manuFactureDataService;
     private final AnalysisDataRepository analysisDataRepository;
     private final UserHistoryRepository userHistoryRepository;
@@ -110,7 +112,8 @@ public class RiotDataService {
                 .orElseThrow(() -> CustomException.builder().httpStatus(HttpStatus.NOT_FOUND).message("해당 소환사의 검색 기록이 없습니다. summonerName=" + summonerName).build());
         String primaryDataUrl = analysisDataRepository.findAnalysisDataByGameIdAndUserHistory_Id(gameId, userHistory.getId()).getPrimaryDataUrl();
         GameAllDetailInfoResponseDto gameAllDetailInfoResponseDto = amazonS3Uploader.loadJsonFileAndConvertToDto(primaryDataUrl);
-        return GameSpecificDetailInfoResponseDto.from(gameAllDetailInfoResponseDto, summonerName);
+        ManufactureResponseDto manufactureResponseDto = manuFactureDataService.manufactureGameData(gameAllDetailInfoResponseDto, summonerName);
+        return GameSpecificDetailInfoResponseDto.from(gameAllDetailInfoResponseDto, summonerName, manufactureResponseDto);
     }
 
     @Async
@@ -161,4 +164,105 @@ public class RiotDataService {
         });
     }
 
+
+    public TotalAnalysisResponseDto analysisGameData(String summonerName){
+        UserHistory userHistory = userHistoryRepository.findByHistoryGamerName(summonerName)
+                .orElseThrow(() -> CustomException.builder().httpStatus(HttpStatus.NOT_FOUND).message("해당 소환사의 검색 기록이 없습니다. summonerName=" + summonerName).build());
+
+        List<AnalysisData> data = analysisDataRepository.findTop10ByUserHistory_IdOrderByCreatedAtDesc(userHistory.getId());
+        if (data.stream().map(AnalysisData::getModelPrediction).anyMatch(Objects::isNull)){
+            throw CustomException.builder().httpStatus(HttpStatus.BAD_REQUEST).message("해당 소환사의 최근 10게임 중 분석이 완료되지 않은 게임이 있습니다.").build();
+        }
+
+//        DoubleSummaryStatistics dtmStats = new DoubleSummaryStatistics();
+//        DoubleSummaryStatistics dpmStats = new DoubleSummaryStatistics();
+//        DoubleSummaryStatistics kapStats = new DoubleSummaryStatistics();
+//        DoubleSummaryStatistics vsStats = new DoubleSummaryStatistics();
+//        DoubleSummaryStatistics dbgpmStats = new DoubleSummaryStatistics();
+//        DoubleSummaryStatistics csmStats = new DoubleSummaryStatistics();
+//        DoubleSummaryStatistics gpmStats = new DoubleSummaryStatistics();
+//        DoubleSummaryStatistics dmgpStats = new DoubleSummaryStatistics();
+//        DoubleSummaryStatistics vspmStats = new DoubleSummaryStatistics();
+//        DoubleSummaryStatistics avgwpmStats = new DoubleSummaryStatistics();
+//        DoubleSummaryStatistics avgwcpmStats = new DoubleSummaryStatistics();
+//        DoubleSummaryStatistics avgvwpmStats = new DoubleSummaryStatistics();
+//
+//        data.stream()
+//                .map(AnalysisData::getPrimaryDataUrl)
+//                .map(amazonS3Uploader::loadJsonFileAndConvertToDto)
+//                .map(totalData -> manuFactureDataService.manufactureGameData(totalData, summonerName))
+//                .forEach(manufactureResponseDto -> {
+//                    dtmStats.accept(manufactureResponseDto.getDtm());
+//                    dpmStats.accept(manufactureResponseDto.getDpm());
+//                    kapStats.accept(manufactureResponseDto.getKap());
+//                    vsStats.accept(manufactureResponseDto.getVs());
+//                    dbgpmStats.accept(manufactureResponseDto.getDbgpm());
+//                    csmStats.accept(manufactureResponseDto.getCsm());
+//                    gpmStats.accept(manufactureResponseDto.getGpm());
+//                    dmgpStats.accept(manufactureResponseDto.getDmgp());
+//                    vspmStats.accept(manufactureResponseDto.getVspm());
+//                    avgwpmStats.accept(manufactureResponseDto.getAvgwpm());
+//                    avgwcpmStats.accept(manufactureResponseDto.getAvgwcpm());
+//                    avgvwpmStats.accept(manufactureResponseDto.getAvgvwpm());
+//                });
+//        ManufactureAverageResponseDto manufactureAverageResponseDto = ManufactureAverageResponseDto.builder()
+//                .dtm(dtmStats.getAverage())
+//                .dpm(dpmStats.getAverage())
+//                .kap(kapStats.getAverage())
+//                .vs(vsStats.getAverage())
+//                .dbgpm(dbgpmStats.getAverage())
+//                .csm(csmStats.getAverage())
+//                .gpm(gpmStats.getAverage())
+//                .dmgp(dmgpStats.getAverage())
+//                .vspm(vspmStats.getAverage())
+//                .avgwpm(avgwpmStats.getAverage())
+//                .avgwcpm(avgwcpmStats.getAverage())
+//                .avgvwpm(avgvwpmStats.getAverage())
+//                .build();
+
+        List<ManufactureResponseDto> manufactureCollect = data.stream()
+                .map(AnalysisData::getPrimaryDataUrl)
+                .map(amazonS3Uploader::loadJsonFileAndConvertToDto)
+                .map(totalData -> manuFactureDataService.manufactureGameData(totalData, summonerName)).collect(Collectors.toList());
+
+        ManufactureAverageResponseDto manufactureAverageResponseDto = ManufactureAverageResponseDto.builder()
+                .dtm(manufactureCollect.stream().mapToInt(ManufactureResponseDto::getDtm).average().orElse(0))
+                .dpm(manufactureCollect.stream().mapToInt(ManufactureResponseDto::getDpm).average().orElse(0))
+                .kap(manufactureCollect.stream().mapToDouble(ManufactureResponseDto::getKap).average().orElse(0))
+                .vs(manufactureCollect.stream().mapToInt(ManufactureResponseDto::getVs).average().orElse(0))
+                .dbgpm(manufactureCollect.stream().mapToDouble(ManufactureResponseDto::getDbgpm).average().orElse(0))
+                .csm(manufactureCollect.stream().mapToDouble(ManufactureResponseDto::getCsm).average().orElse(0))
+                .gpm(manufactureCollect.stream().mapToDouble(ManufactureResponseDto::getGpm).average().orElse(0))
+                .dmgp(manufactureCollect.stream().mapToDouble(ManufactureResponseDto::getDmgp).average().orElse(0))
+                .vspm(manufactureCollect.stream().mapToDouble(ManufactureResponseDto::getVspm).average().orElse(0))
+                .avgwpm(manufactureCollect.stream().mapToDouble(ManufactureResponseDto::getAvgwpm).average().orElse(0))
+                .avgwcpm(manufactureCollect.stream().mapToDouble(ManufactureResponseDto::getAvgwcpm).average().orElse(0))
+                .avgvwpm(manufactureCollect.stream().mapToDouble(ManufactureResponseDto::getAvgvwpm).average().orElse(0))
+                .build();
+
+
+        // 뒤에서부터 최근 게임
+        List<Double> predictionList = data.stream().map(AnalysisData::getModelPrediction).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+
+        return TotalAnalysisResponseDto.builder()
+                .manufactureInfo(manufactureAverageResponseDto)
+                .predictionList(predictionList)
+                .build();
+    }
+
+    @Async
+    @Transactional
+    public void analysisGameByFlask(String summonerName){ // 아직 매우 미완성
+        UserHistory userHistory = userHistoryRepository.findByHistoryGamerName(summonerName)
+                .orElseThrow(() -> CustomException.builder().httpStatus(HttpStatus.NOT_FOUND).message("해당 소환사의 검색 기록이 없습니다. summonerName=" + summonerName).build());
+
+        analysisDataRepository.findTop10ByUserHistory_IdOrderByCreatedAtDesc(userHistory.getId())
+                .stream()
+                .filter(analysisData -> analysisData.getModelPrediction() != null) // null 값이 아닌 것만 분석하도록
+                .map(AnalysisData::getPrimaryDataUrl).collect(Collectors.toList()).stream()
+                .forEach(jsonKey -> {
+                    FlaskResponseDto flaskResponseDto = flaskService.analysisGameData(FlaskRequestDto.builder().bucketName(bucketName).keyName(jsonKey).build());
+                    analysisDataRepository.updateAnalysisDataPrediction(flaskResponseDto.getData().get(0).get(0), LocalDateTime.now(), jsonKey);
+                });
+    }
 }
