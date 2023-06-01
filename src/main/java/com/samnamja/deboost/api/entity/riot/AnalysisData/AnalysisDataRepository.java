@@ -7,5 +7,7 @@ import java.util.List;
 
 public interface AnalysisDataRepository extends JpaRepository<AnalysisData, Long>, AnalysisDataRepositoryCustom {
     List<AnalysisData> findAnalysisDataBySummonerNameAndGameIds(String summonerName, List<GameIdResponseDto> gameIds);
+    List<AnalysisData> findTop10ByUserHistory_IdOrderByCreatedAtDesc(Long userHistoryId);
+    AnalysisData findAnalysisDataByGameIdAndUserHistory_Id(String gameId, Long userHistoryId);
 
 }
