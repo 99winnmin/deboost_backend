@@ -1,6 +1,5 @@
 package com.samnamja.deboost.api.dto.riot.response;
 
-import com.samnamja.deboost.api.dto.openfeign.response.GameSpecificDetailInfoResponseDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +11,10 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SummonerSearchResponseDto {
     private SummonerInfo summonerInfo;
-    private List<GameSpecificDetailInfoResponseDto> gameInfos;
+    // 한번이라도 검색된 적이 있냐?
+    private boolean isSearchedBefore;
+    private boolean isUpdated;
+    private List<GameInfoDto> gameInfos;
 
     @Getter
     public static class SummonerInfo {
@@ -31,8 +33,10 @@ public class SummonerSearchResponseDto {
     }
 
     @Builder
-    public SummonerSearchResponseDto(SummonerInfo summonerInfo, List<GameSpecificDetailInfoResponseDto> gameInfos) {
+    public SummonerSearchResponseDto(SummonerInfo summonerInfo, boolean isSearchedBefore, boolean isUpdated, List<GameInfoDto> gameInfos) {
         this.summonerInfo = summonerInfo;
+        this.isSearchedBefore = isSearchedBefore;
+        this.isUpdated = isUpdated;
         this.gameInfos = gameInfos;
     }
 }
