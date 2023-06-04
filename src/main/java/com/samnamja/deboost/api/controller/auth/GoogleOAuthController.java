@@ -38,7 +38,7 @@ public class GoogleOAuthController {
     public ResponseEntity<TokenResponseDto> oauth_google_check(HttpServletRequest request,
                                                                @RequestParam(value = "code") String authCode,
                                                                HttpServletResponse response) throws Exception{
-
+        log.info("plz...plz...plz...plz...plz...plz...plz...plz...plz...plz...plz...plz...");
         TokenResponseDto tokenInfoDto = googleOAuthService.getGoogleUserInfo(authCode);
         return ResponseEntity.ok().body(tokenInfoDto);
     }
