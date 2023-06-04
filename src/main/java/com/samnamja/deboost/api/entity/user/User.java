@@ -1,5 +1,6 @@
 package com.samnamja.deboost.api.entity.user;
 
+import com.samnamja.deboost.api.entity.bookmark.BookMark;
 import com.samnamja.deboost.api.entity.token.UserToken;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -39,6 +41,9 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserToken userToken;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<BookMark> bookMarks;
 
     @Builder
     public User(String name, String email, String picture, Role role) {

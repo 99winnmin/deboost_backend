@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ManuFactureDataService {
 
-    public static ManufactureResponseDto manufactureGameData(GameAllDetailInfoResponseDto gameAllDetailInfoResponseDto, String desiredSummonerName) {
+    public ManufactureResponseDto manufactureGameData(GameAllDetailInfoResponseDto gameAllDetailInfoResponseDto, String desiredSummonerName) {
         GameAllDetailInfoResponseDto.InfoDTO.ParticipantDTO ref = gameAllDetailInfoResponseDto.getInfo().getParticipants().stream()
                 .filter(participantDTO -> desiredSummonerName.equals(participantDTO.getSummonerName()))
                 .collect(Collectors.toList()).get(0);

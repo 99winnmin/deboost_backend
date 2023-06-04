@@ -1,7 +1,6 @@
-package com.samnamja.deboost.api.dto.openfeign.response;
+package com.samnamja.deboost.api.dto.riot.response;
 
-import com.samnamja.deboost.api.dto.riot.response.ManufactureResponseDto;
-import com.samnamja.deboost.api.service.riot.ManuFactureDataService;
+import com.samnamja.deboost.api.dto.openfeign.response.GameAllDetailInfoResponseDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,11 +12,10 @@ import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class GameSpecificDetailInfoResponseDto {
+public class GameInfoDto {
     private String gameId;
     private ParticipantInfos participantInfos;
     private InfoDTO info;
-    private ManufactureResponseDto manufactureInfo;
 
     @Getter
     public static class ParticipantInfos {
@@ -50,15 +48,17 @@ public class GameSpecificDetailInfoResponseDto {
     public static class InfoDTO {
         private Long gameEndTimestamp;
         private Long gameStartTimestamp;
-        private ParticipantDTO participants;
+        private GameData gameData;
 
         @Getter
-        public static class ParticipantDTO {
+        public static class GameData {
             private Integer championId;
             private String championName;
             private String summonerName;
             private Integer champLevel;
+            // 스펠 1
             private Integer summoner1Id;
+            // 스펠 2
             private Integer summoner2Id;
             private Integer kills;
             private Integer deaths;
@@ -77,7 +77,7 @@ public class GameSpecificDetailInfoResponseDto {
             private boolean win;
 
             @Builder
-            public ParticipantDTO(GameAllDetailInfoResponseDto.InfoDTO.ParticipantDTO participantDTO) {
+            public GameData(GameAllDetailInfoResponseDto.InfoDTO.ParticipantDTO participantDTO) {
                 this.championId = participantDTO.getChampionId();
                 this.championName = participantDTO.getChampionName();
                 this.summonerName = participantDTO.getSummonerName();
@@ -106,19 +106,18 @@ public class GameSpecificDetailInfoResponseDto {
         public InfoDTO(Long gameEndTimestamp, Long gameStartTimestamp, GameAllDetailInfoResponseDto.InfoDTO.ParticipantDTO participants) {
             this.gameEndTimestamp = gameEndTimestamp;
             this.gameStartTimestamp = gameStartTimestamp;
-            this.participants = ParticipantDTO.builder().participantDTO(participants).build();
+            this.gameData = GameData.builder().participantDTO(participants).build();
         }
     }
 
     @Builder
-    public GameSpecificDetailInfoResponseDto(String gameId, ParticipantInfos participantInfos, InfoDTO info, ManufactureResponseDto manufactureInfo) {
+    public GameInfoDto(String gameId, ParticipantInfos participantInfos, InfoDTO info) {
         this.gameId = gameId;
         this.participantInfos = participantInfos;
         this.info = info;
-        this.manufactureInfo = manufactureInfo;
     }
 
-    public static GameSpecificDetailInfoResponseDto from(GameAllDetailInfoResponseDto gameAllDetailInfoResponseDto, String desiredSummonerName) {
+    public static GameInfoDto from(GameAllDetailInfoResponseDto gameAllDetailInfoResponseDto, String desiredSummonerName) {
         GameAllDetailInfoResponseDto.InfoDTO.ParticipantDTO participantData = gameAllDetailInfoResponseDto.getInfo().getParticipants().stream()
                 .filter(participantDTO -> desiredSummonerName.equals(participantDTO.getSummonerName()))
                 .collect(Collectors.toList()).get(0);
@@ -127,7 +126,7 @@ public class GameSpecificDetailInfoResponseDto {
                 .map(participantDTO -> ParticipantInfos.ParticipantInfo.builder().teamId(participantDTO.getTeamId()).summonerName(participantDTO.getSummonerName()).championId(participantDTO.getChampionId()).build())
                 .collect(Collectors.groupingBy(ParticipantInfos.ParticipantInfo::getTeamId));
 
-        return GameSpecificDetailInfoResponseDto.builder()
+        return GameInfoDto.builder()
                 .gameId(gameAllDetailInfoResponseDto.getMetadata().getMatchId())
                 .participantInfos(ParticipantInfos.builder()
                         .team1(team12.get(100))
@@ -138,7 +137,6 @@ public class GameSpecificDetailInfoResponseDto {
                         .gameStartTimestamp(gameAllDetailInfoResponseDto.getInfo().getGameStartTimestamp())
                         .participants(participantData)
                         .build())
-                .manufactureInfo(ManuFactureDataService.manufactureGameData(gameAllDetailInfoResponseDto, desiredSummonerName))
                 .build();
     }
 }
