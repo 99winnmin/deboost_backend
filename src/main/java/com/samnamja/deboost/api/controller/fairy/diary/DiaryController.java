@@ -1,7 +1,9 @@
 package com.samnamja.deboost.api.controller.fairy.diary;
 
 import com.samnamja.deboost.api.dto.fairy.request.DiaryMakeRequestDto;
+import com.samnamja.deboost.api.dto.fairy.request.FairyMakeRequestDto;
 import com.samnamja.deboost.api.dto.fairy.response.ChatCompletionDto;
+import com.samnamja.deboost.api.dto.fairy.response.FairyMakeResponseDto;
 import com.samnamja.deboost.api.dto.fairy.response.FairyTaleCoverResponseDto;
 import com.samnamja.deboost.api.dto.fairy.response.FairyTaleDetailResponseDto;
 import com.samnamja.deboost.api.entity.user.detail.UserAccount;
@@ -27,8 +29,7 @@ public class DiaryController {
             (
                     @AuthenticationPrincipal UserAccount userAccount,
                     @RequestBody DiaryMakeRequestDto diaryMakeRequestDto
-            )
-    {
+            ) {
         ChatCompletionDto content = fairyDiaryService.getFairyContent(diaryMakeRequestDto);
         return ResponseEntity.ok().body(Arrays.asList(content.getChoices().get(0).getMessage().getContent().split("\\n\\n")));
     }
@@ -39,8 +40,7 @@ public class DiaryController {
                     @AuthenticationPrincipal UserAccount userAccount,
                     @Nullable @RequestParam Long cursor,
                     @PageableDefault(size = 4) Pageable pageable
-            )
-    {
+            ) {
         List<FairyTaleCoverResponseDto> myFairyTaleCovers = fairyDiaryService.getMyFairyTales(userAccount, cursor, pageable);
         return ResponseEntity.ok().body(myFairyTaleCovers);
     }
@@ -50,10 +50,17 @@ public class DiaryController {
             (
                     @AuthenticationPrincipal UserAccount userAccount,
                     @PathVariable Long diaryId
-            )
-    {
+            ) {
         FairyTaleDetailResponseDto fairyTaleDetailResponseDto = fairyDiaryService.getFairyTaleDetailInfo(userAccount, diaryId);
         return ResponseEntity.ok().body(fairyTaleDetailResponseDto);
     }
 
+    @PostMapping("/diary")
+    public ResponseEntity<FairyMakeResponseDto> uploadFairyTale(
+            @AuthenticationPrincipal UserAccount userAccount,
+            @RequestBody FairyMakeRequestDto fairyMakeRequestDto
+            ) {
+        FairyMakeResponseDto fairyMakeResponseDto = fairyDiaryService.uploadFairyTale(userAccount, fairyMakeRequestDto);
+        return ResponseEntity.ok().body(fairyMakeResponseDto);
+    }
 }
