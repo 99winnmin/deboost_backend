@@ -48,7 +48,7 @@ public class FairyDiaryService {
                             messageList.add(MessageRequestDto.builder().role("assistant").content(content.getQuestion()).build());
                             messageList.add(MessageRequestDto.builder().role("user").content(content.getAnswer()).build());
                         });
-        messageList.add(MessageRequestDto.builder().role("assistant").content("저는 위 답변들을 듣고 행복한 동화로 아이들이 좋아할 만한 동화를 창작하는 동화작가입니다. 그리고 주인공은 가상인물로 설정하겠습니다. 다음 내용을 기반으로 기승전결이 있는 4문단으로 이루어져있고 각 문단이 6줄로 이루어진 동화를 작성해드리겠습니다.").build());
+        messageList.add(MessageRequestDto.builder().role("assistant").content("저는 위 답변들을 듣고 행복한 동화로 아이들이 좋아할만한 동화를 창작하는 동화작가입니다. 다음 내용을 기반으로 아이들이 좋아할만한 동화를 작성해드리겠습니다. 총 4개의 문단으로 구성되어 있으며 각 문단은 4개의 문장으로 이뤄져있습니다.").build());
         FairyRequestDto fairyRequestDto = FairyRequestDto.builder().model(model)
                 .messages(messageList)
                 .build();
