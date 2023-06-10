@@ -31,7 +31,7 @@ public class FairyTaleDetailResponseDto {
                 .fairyTaleId(diary.getId())
                 .fairyTaleTitle(diary.getTitle())
                 .fairyTaleCoverUrl(diary.getCoverUrl())
-                .fairyTaleContent(Arrays.asList(diary.getContent().split("\\\\n\\\\n")))
+                .fairyTaleContent(Arrays.asList(diary.getContent().split("&")))
                 .build();
     }
 }
