@@ -25,6 +25,9 @@ public class Diary {
     @Column(name = "diary_content", nullable = false)
     private String content;
 
+    @Column(name = "diary_cover_url", nullable = false)
+    private String coverUrl;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -33,18 +36,20 @@ public class Diary {
     private Device device;
 
     @Builder
-    public Diary(String title, String content, Device device) {
+    public Diary(String title, String content, Device device, String coverUrl) {
         this.title = title;
         this.content = content;
         this.device = device;
+        this.coverUrl = coverUrl;
         this.createdAt = LocalDateTime.now();
     }
 
-    public static Diary toEntity(String title, String content, Device device) {
+    public static Diary toEntity(String title, String content, Device device, String coverUrl) {
         return Diary.builder()
                 .title(title)
                 .content(content)
                 .device(device)
+                .coverUrl(coverUrl)
                 .build();
     }
 }
