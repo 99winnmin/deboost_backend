@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -45,6 +46,9 @@ public class RiotDataService {
 
 
     public SummonerSearchResponseDto get10GameData(String summonerName) {
+        Optional.of(riotOpenFeignService.getSummonerEncryptedId(summonerName, riotApiKey))
+                .orElseThrow(() -> CustomException.builder().httpStatus(HttpStatus.NOT_FOUND).message("해당 소환사가 없습니다. summonerName = " + summonerName).build());
+
         return userHistoryRepository.findByHistoryGamerName(summonerName)
                 .map(this::getExistingUserData)
                 .orElseGet(() -> getNewUserData(summonerName));
@@ -83,17 +87,37 @@ public class RiotDataService {
     }
 
     private SummonerSearchResponseDto.SummonerInfo buildSummonerInfo(SummonerInfoResponseDto summonerInfo, List<SummonerDetailInfoResponseDto> summonerDetailInfo) {
-        String tier = summonerDetailInfo.stream()
+        SummonerDetailInfoResponseDto.TierData tierData = summonerDetailInfo.stream()
                 .filter(detailInfo -> detailInfo.getQueueType().equals("RANKED_SOLO_5x5"))
                 .findFirst()
-                .map(SummonerDetailInfoResponseDto::getTier)
-                .orElse("UNRANKED");
+//                .map(SummonerDetailInfoResponseDto::getTierData)
+                .map(detailInfo -> detailInfo.getTierData(detailInfo.getTier(), detailInfo.getRank()))
+                .orElse(null);
+
+        String strRank = Optional.of(Objects.requireNonNull(tierData).getRank())
+                .orElseThrow(() -> CustomException.builder().httpStatus(HttpStatus.NOT_FOUND).message("Rank 정보가 없습니다.").build());
+
+        int tier = 0;
+        for (int i=0 ; i < strRank.length() ; i++){
+            char currentChar = strRank.charAt(i);
+            switch (currentChar) {
+                case 'I':
+                    tier += 1;
+                    break;
+                case 'V':
+                    tier += 5;
+                    break;
+                default:
+                    break;
+            }
+        }
 
         return SummonerSearchResponseDto.SummonerInfo.builder()
                 .summonerName(summonerInfo.getName())
                 .summonerLevel(summonerInfo.getSummonerLevel())
                 .summonerIconId(summonerInfo.getProfileIconId())
-                .tier(tier)
+                .tier(tierData.getTier())
+                .rank(tier)
                 .build();
     }
 
