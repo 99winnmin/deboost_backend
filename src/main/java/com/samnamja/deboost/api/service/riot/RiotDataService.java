@@ -15,6 +15,7 @@ import com.samnamja.deboost.utils.aws.AmazonS3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -45,20 +46,20 @@ public class RiotDataService {
     private final AmazonS3Uploader amazonS3Uploader;
 
 
-    public SummonerSearchResponseDto get10GameData(String summonerName) {
+    public SummonerSearchResponseDto get10GameData(String summonerName, Long cursor, Pageable pageable) {
         Optional.of(riotOpenFeignService.getSummonerEncryptedId(summonerName, riotApiKey))
                 .orElseThrow(() -> CustomException.builder().httpStatus(HttpStatus.NOT_FOUND).message("해당 소환사가 없습니다. summonerName = " + summonerName).build());
 
         return userHistoryRepository.findByHistoryGamerName(summonerName)
-                .map(this::getExistingUserData)
+                .map(userHistory -> getExistingUserData(userHistory, cursor, pageable))
                 .orElseGet(() -> getNewUserData(summonerName));
     }
 
-    private SummonerSearchResponseDto getExistingUserData(UserHistory userHistory) {
+    private SummonerSearchResponseDto getExistingUserData(UserHistory userHistory, Long cursor, Pageable pageable) {
         String summonerName = userHistory.getHistoryGamerName();
         SummonerInfoResponseDto summonerInfo = riotOpenFeignService.getSummonerEncryptedId(summonerName, riotApiKey);
         List<SummonerDetailInfoResponseDto> summonerDetailInfo = riotOpenFeignService.getSummonerDetailInfo(summonerInfo.getId(), riotApiKey);
-        List<GameInfoDto> gameInfoDtos = getGameInfoDtos(userHistory, summonerName);
+        List<GameInfoDto> gameInfoDtos = getGameInfoDtos(userHistory, summonerName, cursor, pageable);
 
         return SummonerSearchResponseDto.builder()
                 .summonerInfo(buildSummonerInfo(summonerInfo, summonerDetailInfo))
@@ -68,12 +69,11 @@ public class RiotDataService {
                 .build();
     }
 
-    private List<GameInfoDto> getGameInfoDtos(UserHistory userHistory, String summonerName) {
-        return analysisDataRepository.findTop10ByUserHistory_IdOrderByCreatedAtDesc(userHistory.getId())
+    private List<GameInfoDto> getGameInfoDtos(UserHistory userHistory, String summonerName, Long cursor, Pageable pageable) {
+        return analysisDataRepository.findTop10ByUserHistory_IdAndAnalysisIdOrderByCreatedAtDesc(userHistory.getId(), cursor, pageable)
                 .stream()
-                .map(AnalysisData::getPrimaryDataUrl)
-                .map(amazonS3Uploader::loadJsonFileAndConvertToDto)
-                .map(gameDetailInfos -> GameInfoDto.from(gameDetailInfos, summonerName))
+                .map(analysisData -> analysisData.getPrimaryDataUrlAndId(analysisData))
+                .map(primaryDataUrlAndId -> GameInfoDto.from(amazonS3Uploader.loadJsonFileAndConvertToDto(primaryDataUrlAndId.getPrimaryDataUrl()), summonerName, primaryDataUrlAndId.getPrimaryDataId()))
                 .collect(Collectors.toList());
     }
 
@@ -143,8 +143,9 @@ public class RiotDataService {
     @Async
     @Transactional
     public void updateGameData(String summonerName){
-        // RIOT API 호출
-        SummonerInfoResponseDto summonerInfo = riotOpenFeignService.getSummonerEncryptedId(summonerName, riotApiKey);
+        SummonerInfoResponseDto summonerInfo = Optional.of(riotOpenFeignService.getSummonerEncryptedId(summonerName, riotApiKey))
+                .orElseThrow(() -> CustomException.builder().httpStatus(HttpStatus.NOT_FOUND).message("해당 소환사가 없습니다. summonerName = " + summonerName).build());
+
         List<GameIdResponseDto> gameIds = riotOpenFeignService.getGameIds(summonerInfo.getPuuid(), riotApiKey);
         gameIds.sort(Comparator.comparing(GameIdResponseDto::getGameId));
 
