@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class GameInfoDto {
+    private Long cursor;
     private String gameId;
     private ParticipantInfos participantInfos;
     private InfoDTO info;
@@ -113,13 +114,14 @@ public class GameInfoDto {
     }
 
     @Builder
-    public GameInfoDto(String gameId, ParticipantInfos participantInfos, InfoDTO info) {
+    public GameInfoDto(Long cursor, String gameId, ParticipantInfos participantInfos, InfoDTO info) {
+        this.cursor = cursor;
         this.gameId = gameId;
         this.participantInfos = participantInfos;
         this.info = info;
     }
 
-    public static GameInfoDto from(GameAllDetailInfoResponseDto gameAllDetailInfoResponseDto, String desiredSummonerName) {
+    public static GameInfoDto from(GameAllDetailInfoResponseDto gameAllDetailInfoResponseDto, String desiredSummonerName, Long cursor) {
         GameAllDetailInfoResponseDto.InfoDTO.ParticipantDTO participantData = gameAllDetailInfoResponseDto.getInfo().getParticipants().stream()
                 .filter(participantDTO -> desiredSummonerName.equals(participantDTO.getSummonerName()))
                 .collect(Collectors.toList()).get(0);
@@ -135,6 +137,7 @@ public class GameInfoDto {
                 .collect(Collectors.groupingBy(ParticipantInfos.ParticipantInfo::getTeamId));
 
         return GameInfoDto.builder()
+                .cursor(cursor)
                 .gameId(gameAllDetailInfoResponseDto.getMetadata().getMatchId())
                 .participantInfos(ParticipantInfos.builder()
                         .team1(team12.get(100))
