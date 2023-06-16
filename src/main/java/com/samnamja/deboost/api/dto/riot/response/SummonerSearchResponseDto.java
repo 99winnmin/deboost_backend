@@ -22,13 +22,15 @@ public class SummonerSearchResponseDto {
         private int summonerLevel;
         private int summonerIconId;
         private String tier;
+        private int rank;
 
         @Builder
-        public SummonerInfo(String summonerName, int summonerLevel, int summonerIconId, String tier) {
+        public SummonerInfo(String summonerName, int summonerLevel, int summonerIconId, String tier, int rank) {
             this.summonerName = summonerName;
             this.summonerLevel = summonerLevel;
             this.summonerIconId = summonerIconId;
             this.tier = tier;
+            this.rank = rank;
         }
     }
 
