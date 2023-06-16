@@ -9,7 +9,10 @@ import com.samnamja.deboost.api.service.riot.RiotDataService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,10 +27,12 @@ public class RiotController {
     public ResponseEntity<SummonerSearchResponseDto> getRecentGames
     (
             @Parameter(hidden = true) @AuthenticationPrincipal UserAccount userAccount,
-            @RequestParam String summonerName
+            @RequestParam String summonerName,
+            @Nullable @RequestParam Long cursor,
+            @PageableDefault(size = 10) Pageable pageable
     )
     {
-        SummonerSearchResponseDto summonerSearchResponseDto = riotDataService.get10GameData(summonerName);
+        SummonerSearchResponseDto summonerSearchResponseDto = riotDataService.get10GameData(summonerName, cursor, pageable);
         return ResponseEntity.ok().body(summonerSearchResponseDto);
     }
 
