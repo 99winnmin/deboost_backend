@@ -20,4 +20,18 @@ public class SummonerDetailInfoResponseDto {
 //    private boolean inactive;
 //    private boolean freshBlood;
 //    private boolean hotStreak;
+
+    public TierData getTierData(String tier, String rank) {
+    	return TierData.builder()
+                .tier(tier)
+                .rank(rank)
+                .build();
+    }
+
+    @Getter
+    @Builder
+    public static class TierData{
+        private String tier;
+        private String rank;
+    }
 }
