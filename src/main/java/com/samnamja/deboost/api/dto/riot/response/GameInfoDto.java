@@ -27,12 +27,14 @@ public class GameInfoDto {
             private Integer teamId;
             private String summonerName;
             private Integer championId;
+            private String championName;
 
             @Builder
-            public ParticipantInfo(Integer teamId, String summonerName, Integer championId) {
+            public ParticipantInfo(Integer teamId, String summonerName, Integer championId, String championName) {
                 this.teamId = teamId;
                 this.summonerName = summonerName;
                 this.championId = championId;
+                this.championName = championName;
             }
         }
 
@@ -123,7 +125,13 @@ public class GameInfoDto {
                 .collect(Collectors.toList()).get(0);
 
         Map<Integer, List<ParticipantInfos.ParticipantInfo>> team12 = gameAllDetailInfoResponseDto.getInfo().getParticipants().stream()
-                .map(participantDTO -> ParticipantInfos.ParticipantInfo.builder().teamId(participantDTO.getTeamId()).summonerName(participantDTO.getSummonerName()).championId(participantDTO.getChampionId()).build())
+                .map(participantDTO -> ParticipantInfos.ParticipantInfo.builder()
+                        .teamId(participantDTO.getTeamId())
+                        .summonerName(participantDTO.getSummonerName())
+                        .championId(participantDTO.getChampionId())
+                        .championName(participantDTO.getChampionName())
+                        .build()
+                )
                 .collect(Collectors.groupingBy(ParticipantInfos.ParticipantInfo::getTeamId));
 
         return GameInfoDto.builder()
