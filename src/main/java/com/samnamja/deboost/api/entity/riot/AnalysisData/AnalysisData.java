@@ -76,4 +76,18 @@ public class AnalysisData {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public PrimaryDataUrlAndId getPrimaryDataUrlAndId(AnalysisData analysisData) {
+        return PrimaryDataUrlAndId.builder()
+                .primaryDataId(analysisData.getId())
+                .primaryDataUrl(analysisData.getPrimaryDataUrl())
+                .build();
+    }
+
+    @Builder
+    @Getter
+    public static class PrimaryDataUrlAndId{
+        private Long primaryDataId;
+        private String primaryDataUrl;
+    }
+
 }
