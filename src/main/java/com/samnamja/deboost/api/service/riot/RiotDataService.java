@@ -98,18 +98,21 @@ public class RiotDataService {
                 .orElseThrow(() -> CustomException.builder().httpStatus(HttpStatus.NOT_FOUND).message("Rank 정보가 없습니다.").build());
 
         int tier = 0;
-        for (int i=0 ; i < strRank.length() ; i++){
-            char currentChar = strRank.charAt(i);
-            switch (currentChar) {
-                case 'I':
-                    tier += 1;
-                    break;
-                case 'V':
-                    tier += 5;
-                    break;
-                default:
-                    break;
-            }
+        switch (strRank) {
+            case "I":
+                tier = 1;
+                break;
+            case "II":
+                tier = 2;
+                break;
+            case "III":
+                tier = 3;
+                break;
+            case "IV":
+                tier = 4;
+                break;
+            default:
+                break;
         }
 
         return SummonerSearchResponseDto.SummonerInfo.builder()
