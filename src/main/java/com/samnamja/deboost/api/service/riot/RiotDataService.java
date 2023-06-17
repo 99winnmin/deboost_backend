@@ -94,7 +94,7 @@ public class RiotDataService {
                 .map(detailInfo -> detailInfo.getTierData(detailInfo.getTier(), detailInfo.getRank()))
                 .orElse(null);
 
-        String strRank = Optional.of(Objects.requireNonNull(tierData).getRank())
+        String strRank = Optional.of(tierData.getRank())
                 .orElseThrow(() -> CustomException.builder().httpStatus(HttpStatus.NOT_FOUND).message("Rank 정보가 없습니다.").build());
 
         int tier = 0;
