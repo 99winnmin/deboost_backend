@@ -88,11 +88,11 @@ public class RiotDataService {
 
     private SummonerSearchResponseDto.SummonerInfo buildSummonerInfo(SummonerInfoResponseDto summonerInfo, List<SummonerDetailInfoResponseDto> summonerDetailInfo) {
         SummonerDetailInfoResponseDto.TierData tierData = summonerDetailInfo.stream()
-                .filter(detailInfo -> detailInfo.getQueueType().equals("RANKED_SOLO_5x5"))
+                .filter(detailInfo -> detailInfo.getQueueType().equals("RANKED_SOLO_5x5") || detailInfo.getQueueType().equals("RANKED_FLEX_SR"))
                 .findFirst()
 //                .map(SummonerDetailInfoResponseDto::getTierData)
                 .map(detailInfo -> detailInfo.getTierData(detailInfo.getTier(), detailInfo.getRank()))
-                .orElse(null);
+                .orElseThrow(() -> CustomException.builder().httpStatus(HttpStatus.NOT_FOUND).message("Rank 정보가 없습니다.").build());
 
         String strRank = Optional.of(tierData.getRank())
                 .orElseThrow(() -> CustomException.builder().httpStatus(HttpStatus.NOT_FOUND).message("Rank 정보가 없습니다.").build());
