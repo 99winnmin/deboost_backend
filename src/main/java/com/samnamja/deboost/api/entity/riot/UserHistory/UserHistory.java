@@ -19,7 +19,7 @@ public class UserHistory {
     @Column(name = "history_id")
     private Long id;
 
-    @Column(name = "history_gamer_name", nullable = false)
+    @Column(name = "history_gamer_name", nullable = false, unique = true)
     private String historyGamerName;
 
     @Column(name = "is_searched")
