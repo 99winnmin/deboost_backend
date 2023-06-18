@@ -284,13 +284,17 @@ public class RiotDataService {
         UserHistory userHistory = userHistoryRepository.findByHistoryGamerName(summonerName)
                 .orElseThrow(() -> CustomException.builder().httpStatus(HttpStatus.NOT_FOUND).message("해당 소환사의 검색 기록이 없습니다. summonerName=" + summonerName).build());
 
-        analysisDataRepository.findTop10ByUserHistory_IdOrderByCreatedAtDesc(userHistory.getId())
+        List<String> keyList = analysisDataRepository.findTop10ByUserHistory_IdOrderByCreatedAtDesc(userHistory.getId())
                 .stream()
-                .filter(analysisData -> analysisData.getModelPrediction() != null) // null 값이 아닌 것만 분석하도록
-                .map(AnalysisData::getPrimaryDataUrl).collect(Collectors.toList()).stream()
-                .forEach(jsonKey -> {
-                    FlaskResponseDto flaskResponseDto = flaskService.analysisGameData(FlaskRequestDto.builder().bucketName(bucketName).keyName(jsonKey).build());
-                    analysisDataRepository.updateAnalysisDataPrediction(flaskResponseDto.getData().get(0).get(0), LocalDateTime.now(), jsonKey);
-                });
+                .filter(analysisData -> analysisData.getModelPrediction() == null) // null 값이 아닌 것만 분석하도록
+                .map(AnalysisData::getPrimaryDataUrl).collect(Collectors.toList());
+
+        FlaskResponseDto flaskResponseDto = flaskService.analysisGameData(FlaskRequestDto.builder()
+                .summonerName(summonerName)
+                .bucketName(bucketName)
+                .keyNames(keyList)
+                .build());
+
+        keyList.stream().forEach(key -> analysisDataRepository.updateAnalysisDataPrediction(flaskResponseDto.getData().get(0), LocalDateTime.now(), key));
     }
 }
