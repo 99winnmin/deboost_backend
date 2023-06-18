@@ -140,7 +140,7 @@ public class RiotDataService {
         return GameSpecificDetailInfoResponseDto.from(gameAllDetailInfoResponseDto, summonerName, manufactureResponseDto);
     }
 
-    @Async
+//    @Async
     @Transactional
     public void updateGameData(String summonerName){
         SummonerInfoResponseDto summonerInfo = Optional.of(riotOpenFeignService.getSummonerEncryptedId(summonerName, riotApiKey))
