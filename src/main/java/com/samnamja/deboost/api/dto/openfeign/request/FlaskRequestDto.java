@@ -5,15 +5,19 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FlaskRequestDto {
+    private String summonerName;
     private String bucketName;
-    private String keyName;
+    private List<String> keyNames;
 
     @Builder
-    public FlaskRequestDto(String bucketName, String keyName){
+    public FlaskRequestDto(String summonerName, String bucketName, List<String> keyNames) {
+        this.summonerName = summonerName;
         this.bucketName = bucketName;
-        this.keyName = keyName;
+        this.keyNames = keyNames;
     }
 }
