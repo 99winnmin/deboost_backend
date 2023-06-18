@@ -22,10 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -268,13 +265,18 @@ public class RiotDataService {
                 .avgvwpm(manufactureCollect.stream().mapToDouble(ManufactureResponseDto::getAvgvwpm).average().orElse(0))
                 .build();
 
+        String totalPredictionStr = data.get(0).getTotalModelPrediction();
+        totalPredictionStr = totalPredictionStr.substring(1, totalPredictionStr.length()-1); // Remove the brackets
+        String[] strNumbers = totalPredictionStr.split(","); // Split by comma
 
-        // 뒤에서부터 최근 게임
-        List<Double> predictionList = data.stream().map(AnalysisData::getModelPrediction).sorted(Comparator.reverseOrder()).collect(Collectors.toList());
+        List<Double> totalPrediction = new ArrayList<>();
+        for(String strNumber : strNumbers) {
+            totalPrediction.add(Double.parseDouble(strNumber.trim())); // Trim and parse
+        }
 
         return TotalAnalysisResponseDto.builder()
                 .manufactureInfo(manufactureAverageResponseDto)
-                .predictionList(predictionList)
+                .predictionList(totalPrediction)
                 .build();
     }
 
@@ -286,7 +288,7 @@ public class RiotDataService {
 
         List<String> keyList = analysisDataRepository.findTop10ByUserHistory_IdOrderByCreatedAtDesc(userHistory.getId())
                 .stream()
-                .filter(analysisData -> analysisData.getModelPrediction() == null) // null 값이 아닌 것만 분석하도록
+//                .filter(analysisData -> analysisData.getModelPrediction() == null) // null 값이 아닌 것만 분석하도록
                 .map(AnalysisData::getPrimaryDataUrl).collect(Collectors.toList());
 
         FlaskResponseDto flaskResponseDto = flaskService.analysisGameData(FlaskRequestDto.builder()
@@ -295,6 +297,49 @@ public class RiotDataService {
                 .keyNames(keyList)
                 .build());
 
-        keyList.stream().forEach(key -> analysisDataRepository.updateAnalysisDataPrediction(flaskResponseDto.getData().get(0), LocalDateTime.now(), key));
+        StringBuilder str = new StringBuilder("[");
+        for (int i = 0; i < flaskResponseDto.getData().size(); i++) {
+            str.append(flaskResponseDto.getData().get(i));
+            if (i < flaskResponseDto.getData().size() - 1) {
+                str.append(", ");
+            }
+        }
+        str.append("]");
+
+        SummonerInfoResponseDto summonerInfo = riotOpenFeignService.getSummonerEncryptedId(summonerName, riotApiKey);
+        List<SummonerDetailInfoResponseDto> summonerDetailInfo = riotOpenFeignService.getSummonerDetailInfo(summonerInfo.getId(), riotApiKey);
+        String tier = buildSummonerInfo(summonerInfo, summonerDetailInfo).getTier();
+        Double modelPrediction = 0.0;
+        switch (tier) {
+            case "IRON":
+                modelPrediction = flaskResponseDto.getData().get(0) + flaskResponseDto.getData().get(1);
+                break;
+            case "BRONZE":
+                modelPrediction = flaskResponseDto.getData().get(0) + flaskResponseDto.getData().get(1) + flaskResponseDto.getData().get(2);
+                break;
+            case "SILVER":
+                modelPrediction = flaskResponseDto.getData().get(1) + flaskResponseDto.getData().get(2) + flaskResponseDto.getData().get(3);
+                break;
+            case "GOLD":
+                modelPrediction = flaskResponseDto.getData().get(2) + flaskResponseDto.getData().get(3) + flaskResponseDto.getData().get(4);
+                break;
+            case "PLATINUM":
+                modelPrediction = flaskResponseDto.getData().get(3) + flaskResponseDto.getData().get(4) + flaskResponseDto.getData().get(5);
+                break;
+            case "DIAMOND":
+                modelPrediction = flaskResponseDto.getData().get(4) + flaskResponseDto.getData().get(5) + flaskResponseDto.getData().get(6);
+                break;
+            case "MASTER":
+            case "GRANDMASTER":
+            case "CHALLENGER":
+                modelPrediction = flaskResponseDto.getData().get(5) + flaskResponseDto.getData().get(6);
+                break;
+            default:
+                modelPrediction = 0.0;
+        }
+
+        for (String key : keyList) {
+            analysisDataRepository.updateAnalysisDataPrediction(str.toString() ,modelPrediction, LocalDateTime.now(), key);
+        }
     }
 }
