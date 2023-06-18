@@ -41,8 +41,12 @@ public class GameAllDetailInfoResponseDto {
 
         @Getter
         public static class ParticipantDTO {
+            private int allInPings;
+            private int assistMePings;
             private int assists;
+            private int baitPings;
             private int baronKills;
+            private int basicPings;
             private int bountyLevel;
             private GameChallengesDTO challenges;
             private int champExperience;
@@ -50,24 +54,30 @@ public class GameAllDetailInfoResponseDto {
             private int championId;
             private String championName;
             private int championTransform;
+            private int commandPings;
             private int consumablesPurchased;
             private int damageDealtToBuildings;
             private int damageDealtToObjectives;
             private int damageDealtToTurrets;
             private int damageSelfMitigated;
+            private int dangerPings;
             private int deaths;
             private int detectorWardsPlaced;
             private int doubleKills;
             private int dragonKills;
             private boolean eligibleForProgression;
+            private boolean enemyMissingPings;
+            private boolean enemyVisionPings;
             private boolean firstBloodAssist;
             private boolean firstBloodKill;
             private boolean firstTowerAssist;
             private boolean firstTowerKill;
             private boolean gameEndedInEarlySurrender;
             private boolean gameEndedInSurrender;
+            private int getBackPings;
             private int goldEarned;
             private int goldSpent;
+            private int holdPings;
             private String individualPosition;
             private int inhibitorKills;
             private int inhibitorTakedowns;
@@ -90,12 +100,14 @@ public class GameAllDetailInfoResponseDto {
             private int magicDamageDealt;
             private int magicDamageDealtToChampions;
             private int magicDamageTaken;
+            private int needVisionPings;
             private int neutralMinionsKilled;
             private int nexusKills;
             private int nexusLost;
             private int nexusTakedowns;
             private int objectivesStolen;
             private int objectivesStolenAssists;
+            private int onMyWayPings;
             private int participantId;
             private int pentaKills;
             private PerksDto perks;
@@ -103,6 +115,7 @@ public class GameAllDetailInfoResponseDto {
             private int physicalDamageDealtToChampions;
             private int physicalDamageTaken;
             private int profileIcon;
+            private int pushPings;
             private String puuid;
             private int quadraKills;
             private String riotIdName;
@@ -143,6 +156,7 @@ public class GameAllDetailInfoResponseDto {
             private int turretTakedowns;
             private int turretsLost;
             private int unrealKills;
+            private int visionClearedPings;
             private int visionScore;
             private int visionWardsBoughtInGame;
             private int wardsKilled;
