@@ -12,5 +12,5 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FlaskResponseDto {
-    private List<List<Double>> data;
+    private List<Double> data;
 }
