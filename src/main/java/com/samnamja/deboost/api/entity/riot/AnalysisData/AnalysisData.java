@@ -34,6 +34,9 @@ public class AnalysisData {
     @Column(name = "model_prediction")
     private Double modelPrediction;
 
+    @Column(name = "total_model_prediction")
+    private String totalModelPrediction;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -71,7 +74,8 @@ public class AnalysisData {
 //        this.updatedAt = LocalDateTime.now();
 //    }
 
-    public void updateModelPrediction(Double modelPrediction) {
+    public void updateModelPrediction(String totalModelPrediction, Double modelPrediction) {
+        this.totalModelPrediction = totalModelPrediction;
         this.modelPrediction = modelPrediction;
         this.updatedAt = LocalDateTime.now();
     }

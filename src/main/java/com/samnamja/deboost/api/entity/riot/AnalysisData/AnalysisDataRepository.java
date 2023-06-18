@@ -16,6 +16,6 @@ public interface AnalysisDataRepository extends JpaRepository<AnalysisData, Long
     AnalysisData findAnalysisDataByGameIdAndUserHistory_Id(String gameId, Long userHistoryId);
 
     @Modifying(clearAutomatically = true)
-    @Query(value = "UPDATE AnalysisData a SET a.modelPrediction = :score, a.updatedAt = :now WHERE a.primaryDataUrl = :jsonKey")
-    void updateAnalysisDataPrediction(Double score, LocalDateTime now, String jsonKey);
+    @Query(value = "UPDATE AnalysisData a SET a.totalModelPrediction = :totalValue, a.modelPrediction = :score, a.updatedAt = :now WHERE a.primaryDataUrl = :jsonKey")
+    void updateAnalysisDataPrediction(String totalValue, Double score, LocalDateTime now, String jsonKey);
 }
