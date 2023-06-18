@@ -159,7 +159,7 @@ public class RiotDataService {
                             .historyGamerName(summonerName)
                             .isSearched(false)
                             .build();
-                    return userHistoryRepository.save(newUserHistory);
+                    return userHistoryRepository.saveAndFlush(newUserHistory);
                 });
 
         // DB에 저장된 데이터와 비교 : API 로 불러온 gameId 중에 DB에 저장된 gameId에 해당하는 것들을 호출
