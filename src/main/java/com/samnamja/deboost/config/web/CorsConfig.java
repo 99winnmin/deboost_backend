@@ -17,6 +17,7 @@ public class CorsConfig {
         config.addAllowedOrigin("http://localhost:3000");
         config.addAllowedOrigin("http://localhost:5173");
         config.addAllowedOrigin("https://deboost.site");
+        config.addAllowedOrigin("https://deboost.site/");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         config.addExposedHeader("*");
