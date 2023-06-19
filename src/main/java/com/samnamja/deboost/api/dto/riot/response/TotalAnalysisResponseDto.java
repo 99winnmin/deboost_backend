@@ -12,10 +12,11 @@ import java.util.List;
 public class TotalAnalysisResponseDto {
     private ManufactureAverageResponseDto manufactureInfo;
     private List<Double> predictionList;
-
+    private Double modelPrediction;
     @Builder
-    public TotalAnalysisResponseDto(ManufactureAverageResponseDto manufactureInfo, List<Double> predictionList) {
+    public TotalAnalysisResponseDto(ManufactureAverageResponseDto manufactureInfo, List<Double> predictionList, Double modelPrediction) {
         this.manufactureInfo = manufactureInfo;
         this.predictionList = predictionList;
+        this.modelPrediction = modelPrediction;
     }
 }

@@ -277,6 +277,7 @@ public class RiotDataService {
         return TotalAnalysisResponseDto.builder()
                 .manufactureInfo(manufactureAverageResponseDto)
                 .predictionList(totalPrediction)
+                .modelPrediction(100.00 - data.get(0).getModelPrediction())
                 .build();
     }
 
