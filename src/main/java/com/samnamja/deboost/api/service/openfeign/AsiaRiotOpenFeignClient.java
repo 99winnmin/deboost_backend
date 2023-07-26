@@ -17,7 +17,7 @@ public interface AsiaRiotOpenFeignClient {
     @GetMapping(value = "/lol/match/v5/matches/by-puuid/{puuid}/ids")
     List<GameIdResponseDto> getGameIds(@PathVariable("puuid") String puuid,
                                        @RequestHeader("X-Riot-Token") String riotToken,
-                                       @RequestParam("type") String type,
+                                       @RequestParam("queue") int queue,
                                        @RequestParam("start") int start,
                                        @RequestParam("count") int count);
 

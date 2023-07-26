@@ -26,7 +26,7 @@ public class RiotOpenFeignService{
     }
 
     public List<GameIdResponseDto> getGameIds(String puuid, String riotToken) {
-        return asiaRiotOpenFeignClient.getGameIds(puuid, riotToken, "ranked", 0, 10);
+        return asiaRiotOpenFeignClient.getGameIds(puuid, riotToken, 420, 0, 10);
     }
 
     public GameAllDetailInfoResponseDto getGameDetailInfos(String matchId, String riotToken) {
